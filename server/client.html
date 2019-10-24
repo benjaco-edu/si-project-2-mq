@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<input type="text" id="amount" placeholder="amount">
+<input type="text" id="stock" placeholder="stock">
+<button id="submit">submit</button>
+
+<pre id="list">
+
+</pre>
+
+
+<script>
+    let amountEl = document.getElementById("amount"),
+        stockEl = document.getElementById("stock"),
+        listEl = document.getElementById("list"),
+        submitEl = document.getElementById("submit");
+
+    submitEl.addEventListener("click", _ => {
+        let amount = amountEl.value,
+            stock = stockEl.value;
+
+        let socket = new WebSocket("ws://localhost:3000/ws");
+        socket.addEventListener("message", async rawmsg => {
+            let msg = JSON.parse(rawmsg.data);
+            listEl.innerHTML = JSON.stringify(msg, null, 2);
+
+            socket.close();
+        })
+        socket.addEventListener("open", () => {
+            socket.send(JSON.stringify({
+                amount, stock
+            }))
+
+        })
+    })
+
+</script>
+
+
+</body>
+</html>
