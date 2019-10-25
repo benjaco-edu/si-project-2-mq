@@ -1,7 +1,7 @@
 
 # Run Rabbit mq
 
-`sudo docker run -d --rm -p 5672:5672 -p 15672:15672 --name localrabbit rabbitmq:3-management`
+`sudo docker run -d --rm -p 5672:5672 -p 15672:15672 -p 15673:15762 --name localrabbit rabbitmq:3-management`
 
 The RabbitMQ dashboard can now be viewed at `http://localhost:15672` user: guest, password: guest
 
