@@ -1,0 +1,10 @@
+/IntegrationComponents/ContentBasedRouter/bin/
+/IntegrationComponents/ContentBasedRouter/obj/
+/IntegrationComponents/Normalizer/bin/
+/IntegrationComponents/Normalizer/obj/
+/IntegrationComponents/Aggregator/bin/
+/IntegrationComponents/Aggregator/obj/
+/IntegrationComponents/Splitter/bin/
+/IntegrationComponents/Splitter/obj/
+/stockbrokers/BrokerCSharp/bin/
+/stockbrokers/BrokerCSharp/obj/

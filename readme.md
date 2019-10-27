@@ -10,3 +10,4 @@ The RabbitMQ dashboard can now be viewed at `http://localhost:15672` user: guest
 Run the server, open `http://localhost:3000` to see the app
 
 `sudo docker run -d -p 3000:3000 --rm --link localrabbit:rabbitmq bslcphbussiness/si-mq-server`
+
