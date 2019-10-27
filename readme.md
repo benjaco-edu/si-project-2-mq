@@ -37,3 +37,18 @@ Again - if you want to see the output produced by the brokerapps execute the abo
 ### Note
 The aggregator, whos job it is to accumulate the output from all the brokers allows for a 5 secs timeout (giving each broker time to reply). So there will be a delay between clicking the button and receiving the data.
 
+
+# Clean up
+Remove all containers by executing
+```
+sudo docker rm -f localrabbit
+sudo docker rm -f frontend
+sudo docker rm -f aggregator
+sudo docker rm -f normalizer
+sudo docker rm -f contentbasedrouter
+sudo docker rm -f splitter
+sudo docker rm -f highbroker
+sudo docker rm -f lowbroker
+sudo docker rm -f crapbroker
+```
+

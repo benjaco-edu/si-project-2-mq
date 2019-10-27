@@ -12,7 +12,7 @@ namespace Splitter
     {
         static void Main(string[] args)
         {
-            var HostName = "localhost";
+            var HostName = "localrabbit";
             var factory = new ConnectionFactory(){HostName=HostName};
             using (var connection = factory.CreateConnection())
             {
