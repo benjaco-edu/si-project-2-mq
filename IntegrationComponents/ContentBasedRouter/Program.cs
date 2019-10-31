@@ -18,7 +18,8 @@ namespace ContentBasedRouter
                 using (var channel = connection.CreateModel())
                 {
                     //queue to receive data from the client - using default
-                    channel.QueueDeclare("stock_requests", false, false, false, null);
+                    channel.QueueDeclare("requests", false, false, false, null);
+                    channel.QueueBind("requests", "expiration_ex", "");
                     //exchange to send received data further through the pipeline
                     channel.ExchangeDeclare("stock_type", type:ExchangeType.Direct);
 
@@ -34,7 +35,7 @@ namespace ContentBasedRouter
                         System.Console.WriteLine("********************************************");
                     };
 
-                    channel.BasicConsume("stock_requests", true, consumer);
+                    channel.BasicConsume("requests", true, consumer);
 
                     System.Console.WriteLine("Waiting for data to route ... press enter to kill");
                     Console.ReadLine();

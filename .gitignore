@@ -1,5 +1,7 @@
 /IntegrationComponents/ContentBasedRouter/bin/
 /IntegrationComponents/ContentBasedRouter/obj/
+/IntegrationComponents/MsgExpiration/bin/
+/IntegrationComponents/MsgExpiration/obj/
 /IntegrationComponents/Normalizer/bin/
 /IntegrationComponents/Normalizer/obj/
 /IntegrationComponents/Aggregator/bin/

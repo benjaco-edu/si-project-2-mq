@@ -16,6 +16,7 @@ The integration components are their own little app setup on to run inside a con
 
 If you dont care about the debug/info/console dump you can simply run them all as detached
 ```
+sudo docker run -d -it --name msgexpiration --link localrabbit cphjs284/si2msgexpiration 5000
 sudo docker run -d -it --name contentbasedrouter --link localrabbit cphjs284/si2contentbasedrouter
 sudo docker run -d -it --name highbroker --link localrabbit cphjs284/si2broker json nasq highbroker
 sudo docker run -d -it --name lowbroker --link localrabbit cphjs284/si2broker xml dow lowbroker
@@ -39,6 +40,7 @@ Remove all containers by executing
 ```
 sudo docker rm -f localrabbit
 sudo docker rm -f frontend
+sodu docker rm -f msgexpiration
 sudo docker rm -f aggregator
 sudo docker rm -f normalizer
 sudo docker rm -f contentbasedrouter
