@@ -30,12 +30,13 @@ namespace MsgExpiration
                 using (var channel = connection.CreateModel())
                 {
                     //consume from this queue
-                    channel.QueueDeclare("stock_requests", false, false, false, Qargs);
+                    channel.QueueDeclare("stock_requests", false, false, false, null);
                     
-                    // //publish to this queue
-                    // //messages send via this queue get "time-stamped" defined in Qargs
-                    // channel.QueueDeclare("msg_expiration", false, false, false, Qargs);
+                    //publish to this queue
+                    //messages send via this queue get "time-stamped" defined in Qargs
                     channel.ExchangeDeclare("expiration_ex", ExchangeType.Direct);
+                    channel.QueueDeclare("msg_expiration", false, false, false, Qargs);
+                    channel.QueueBind("msg_expiration", "expiration_ex", "");
 
                     var consumer = new EventingBasicConsumer(channel);
                     consumer.Received += (model, ea) => {

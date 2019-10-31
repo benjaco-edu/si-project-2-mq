@@ -71,8 +71,8 @@ namespace BrokerCSharp
 
 
                         var respmsg = Encoding.UTF8.GetBytes(resp);
-                        //channel.BasicPublish(exchange: "normalizer", routingKey: "", basicProperties: props, body: respmsg);
                         channel.BasicPublish("normalizer", routingKey: "", basicProperties: props, body: respmsg);
+
                     System.Console.WriteLine("*********************************************");
                         System.Console.WriteLine($"RESPONSE : {resp}");
                     System.Console.WriteLine("*********************************************");
@@ -123,20 +123,15 @@ namespace BrokerCSharp
 
         }
         static string SetBrokerStockType(string[] args){
-            if(args.Length <= 1){
-                System.Console.WriteLine("[INFO] - no BrokerStockType set, using default(nasq)");
-                return "ClassA";
+            var type ="";
+            if(args[1] == "nasq" ){
+                type = "ClassA";
             }else
             {
-                if(args[1] != "nasq" && args[1] != "dow"){
-                    System.Console.WriteLine("[INFO] - Unknow BrokerStockType specified, using default(nasq)");
-                    return "ClassA";
-                }else
-                {
-                    System.Console.WriteLine($"[INFO] - BrokerStockType set to {args[1]}");
-                    return "ClassB";
-                }
+                type = "ClassB";
             }
+            System.Console.WriteLine($"[INFO] - BrokerStockType set to {args[1]}");
+            return type;
         }
         static string SetMessageTypeFormat(string[] args){
             if(args.Length == 0){
