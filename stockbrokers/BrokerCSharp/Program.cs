@@ -22,6 +22,7 @@ namespace BrokerCSharp
         {
             string HostName = "localrabbit";
             string BrokerId;
+            string CompName = "BROKER";
             if (args.Length <= 2){
                 BrokerId = Guid.NewGuid().ToString();
             }else
@@ -40,16 +41,13 @@ namespace BrokerCSharp
             {
                 using (var channel = connection.CreateModel())
                 {
-                    System.Console.WriteLine("*********************************************");
-                    System.Console.WriteLine($"Starting Broker with ID : {BrokerId}");
-                    System.Console.WriteLine("*********************************************");
+
+                    channel.BasicPublish("logger_ex", "", body: Encoding.UTF8.GetBytes($"{CompName} - Starting Broker with ID : {BrokerId} - BrokerStockType set to [{args[1]}] - messagetype-format set to [{args[0]}]"));
 
                     //create queue to receive data
                     var RandomQueueName = channel.QueueDeclare().QueueName;
                     channel.QueueBind(RandomQueueName, "stock_type", BrokerStockType);
-
-                    //create exchanger to send data
-                    channel.ExchangeDeclare("normalizer", ExchangeType.Direct);
+                    
                     //create appropriate headers for normalizer
                     var dict = new Dictionary<string, object>();
                     dict.Add("resptype", MessageTypeFormat);
@@ -61,28 +59,20 @@ namespace BrokerCSharp
                         var body = ea.Body;
                         var message = Encoding.UTF8.GetString(body);
 
-                    System.Console.WriteLine("*********************************************");
-                        System.Console.WriteLine($"DATA RECEIVED {message} - {MessageTypeFormat} - {BrokerStockType}");
-                    System.Console.WriteLine("*********************************************");
-
-                        //working
-                        Thread.Sleep(responseDelay);
-                        var resp = CreateResp(message, MessageTypeFormat, BrokerId);
+                    channel.BasicPublish("logger_ex", "", body: Encoding.UTF8.GetBytes($"{CompName} : {BrokerId} - DATA RECEIVED {message} - {MessageTypeFormat} - {BrokerStockType}"));
+                    //working
+                    Thread.Sleep(responseDelay);
+                    var resp = CreateResp(message, MessageTypeFormat, BrokerId);
 
 
-                        var respmsg = Encoding.UTF8.GetBytes(resp);
-                        channel.BasicPublish("normalizer", routingKey: "", basicProperties: props, body: respmsg);
-
-                    System.Console.WriteLine("*********************************************");
-                        System.Console.WriteLine($"RESPONSE : {resp}");
-                    System.Console.WriteLine("*********************************************");
-
-
+                    var respmsg = Encoding.UTF8.GetBytes(resp);
+                    channel.BasicPublish("normalizer", routingKey: "", basicProperties: props, body: respmsg);
+                    channel.BasicPublish("logger_ex", "", body: Encoding.UTF8.GetBytes($"{CompName} - RESPONSE : {resp}"));
                     };
 
                     channel.BasicConsume(RandomQueueName, true, consumer);
 
-                    System.Console.WriteLine("Waiting ... enter to kill");
+                    System.Console.WriteLine("Press enter to kill");
                     Console.ReadLine();
                 }
                 System.Console.WriteLine("Shutting down");
@@ -130,24 +120,10 @@ namespace BrokerCSharp
             {
                 type = "ClassB";
             }
-            System.Console.WriteLine($"[INFO] - BrokerStockType set to {args[1]}");
             return type;
         }
         static string SetMessageTypeFormat(string[] args){
-            if(args.Length == 0){
-                System.Console.WriteLine("[INFO] - no messagetype-format set, using default(json)");
-                return "json";
-            }else
-            {
-                if(args[0] != "json" && args[0] != "xml"){
-                    System.Console.WriteLine("[INFO] - Unknow messagetype-format specified, using default(json)");
-                    return "json";
-                }else
-                {
-                    System.Console.WriteLine($"[INFO] - messagetype-format set to {args[0]}");
-                    return args[0];
-                }
-            }
+            return args[0];
         }
     }
 }

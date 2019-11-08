@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
@@ -12,13 +13,12 @@ namespace MsgExpiration
         {
             var HostName = "localrabbit";
             int msgTTL;
+            string CompName = "MESSAGE EXPIRATION COMPONENT";
             var Qargs = new Dictionary<string, object>();
             if(args.Length==0){
-                System.Console.WriteLine("Using default MSGTTL : 5000ms");
                 msgTTL = 5000;
             }else
             {
-                System.Console.WriteLine($"Using MSGTTL : {args[0]}");
                 msgTTL = int.Parse(args[0]);
             }
 
@@ -29,20 +29,23 @@ namespace MsgExpiration
             {
                 using (var channel = connection.CreateModel())
                 {
-                    //consume from this queue
-                    channel.QueueDeclare("stock_requests", false, false, false, null);
-                    
+
                     //publish to this queue
                     //messages send via this queue get "time-stamped" defined in Qargs
                     channel.ExchangeDeclare("expiration_ex", ExchangeType.Direct);
                     channel.QueueDeclare("msg_expiration", false, false, false, Qargs);
                     channel.QueueBind("msg_expiration", "expiration_ex", "");
+                    
+                    //log msg
+                    channel.BasicPublish("logger_ex", "",body: Encoding.UTF8.GetBytes($"Starting - {CompName} - Using MSGTTL : {msgTTL}"));
 
                     var consumer = new EventingBasicConsumer(channel);
                     consumer.Received += (model, ea) => {
                         //no need to extract message from body
                         var body = ea.Body;
-                        System.Console.WriteLine("DATA RECEIVED AND TIME-STAMPED");
+                        //send to log
+                        channel.BasicPublish("logger_ex", "",body: Encoding.UTF8.GetBytes($" {CompName} - Message Timestamped - {Encoding.UTF8.GetString(body)}"));
+                        //send downstream
                         channel.BasicPublish("expiration_ex", "", body:body);
                     };
                     channel.BasicConsume("stock_requests", true, consumer);

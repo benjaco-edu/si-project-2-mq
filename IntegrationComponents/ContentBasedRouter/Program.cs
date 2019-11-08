@@ -12,6 +12,7 @@ namespace ContentBasedRouter
         static void Main(string[] args)
         {
             string HostName = "localrabbit";
+            string CompName = "CONTENT-BASED-ROUTER COMPONENT";
             var factory = new ConnectionFactory(){HostName=HostName};
             using (var connection = factory.CreateConnection())
             {
@@ -21,22 +22,22 @@ namespace ContentBasedRouter
                     channel.QueueBind("msg_expiration", "expiration_ex", "");
                     //exchange/queues to send received data further through the pipeline
                     channel.ExchangeDeclare("stock_type", type:ExchangeType.Direct);
+                    
+                    
+                    channel.BasicPublish("logger_ex","", body: Encoding.UTF8.GetBytes($"Starting - {CompName}"));
 
                     var consumer = new EventingBasicConsumer(channel);
                     consumer.Received += (model, ea) => {
                         var body = ea.Body;
                         var message = Encoding.UTF8.GetString(body);
                         var RKey = GetRoutingKeyRuleEngine(message);
-                    
                         channel.BasicPublish(exchange: "stock_type", routingKey: RKey, body: body); 
-                        System.Console.WriteLine("********************************************");
-                        System.Console.WriteLine($"[INFO] - RECEIVED : {message} - Routing using key : {RKey}");   
-                        System.Console.WriteLine("********************************************");
+                        channel.BasicPublish("logger_ex", "", body: Encoding.UTF8.GetBytes($"{CompName} - RECEIVED : {message} - Routing using key : {RKey}"));
                     };
 
                     channel.BasicConsume("msg_expiration", true, consumer);
 
-                    System.Console.WriteLine("Waiting for data to route ... press enter to kill");
+                    System.Console.WriteLine("Press enter to kill");
                     Console.ReadLine();
                 }
                 System.Console.WriteLine("Shutting down...");

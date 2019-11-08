@@ -16,30 +16,30 @@ namespace Aggregator
         static void Main(string[] args)
         {   // storage to aggregate all messages with same clientId
             string HostName = "localrabbit";
+            string CompName = "AGGREGATOR COMPONENT";
             var factory = new ConnectionFactory(){HostName=HostName};
-
 
             using (var connection = factory.CreateConnection())
             {
                 using (var channel = connection.CreateModel())
                 {
+                    channel.ExchangeDeclare("aggregator", ExchangeType.Direct);
                     channel.QueueDeclare("aggregator_queue", false, false, false, null);
                     channel.QueueBind("aggregator_queue", "aggregator", "");
-                    channel.ExchangeDeclare("splitter", ExchangeType.Direct);
+
+                    channel.BasicPublish("logger_ex", "", body: Encoding.UTF8.GetBytes($"starting {CompName}"));
 
                     var consumer = new EventingBasicConsumer(channel);
                     consumer.Received += (model, ea) => {
                         var body = ea.Body;
                         var message = Encoding.UTF8.GetString(body);
-                        System.Console.WriteLine("RECEIVED : " + message);
-
+                        channel.BasicPublish("logger_ex", "", body: Encoding.UTF8.GetBytes($"{CompName} - RECEIVED : {message} - timer started"));
                         StoreMessage(message);
-
                         channel.BasicAck(ea.DeliveryTag, false);
                     };
 
                     TimeDat.TimerExpiredEvent += (tea) => {
-                        System.Console.WriteLine($"[INFO] - timeout for ClientRequestId {tea.Name}");
+                        channel.BasicPublish("logger_ex", "", body: Encoding.UTF8.GetBytes($"{CompName} - timeout for ClientRequestId {tea.Name}"));
                         var Agrmessage = new AggregateRespModel();
                         Agrmessage.AggregateRespMsg = new List<string>();
                         foreach (var item in messageStore[tea.Name])
@@ -52,7 +52,7 @@ namespace Aggregator
 
                     channel.BasicConsume("aggregator_queue", false, consumer);
 
-                    System.Console.WriteLine("Waiting ... press enter to kill");
+                    System.Console.WriteLine("Press enter to kill");
                     Console.ReadLine();
                 }
                 System.Console.WriteLine("Shutting down ...");

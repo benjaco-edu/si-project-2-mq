@@ -1,3 +1,5 @@
+/logger/bin/
+/logger/obj/
 /IntegrationComponents/ContentBasedRouter/bin/
 /IntegrationComponents/ContentBasedRouter/obj/
 /IntegrationComponents/MsgExpiration/bin/

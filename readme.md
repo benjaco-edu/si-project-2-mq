@@ -11,21 +11,31 @@ Run the server, open `http://localhost:3000` to see the app
 
 `sudo docker run -d -p 3000:3000 --rm --name frontend --link localrabbit:rabbitmq bslcphbussiness/si-mq-server`
 
-# Integration components
+# Components
 The integration components are their own little app setup on to run inside a container
 
-If you dont care about the debug/info/console dump you can simply run them all as detached
+Output from all containers are routed to a log container, via rabbitmq - to execute the logger
+```
+sudo docker run -d -it --name logger --link localrabbit cphjs284/si2logger
+```
+
+Once this container spins up all messages send to the logger will be printed to the console.
+Setup the integration components (new terminal window)
+(You will notice that as these components spin up the log will output appropriate messages)
 ```
 sudo docker run -d -it --name msgexpiration --link localrabbit cphjs284/si2msgexpiration 5000
 sudo docker run -d -it --name contentbasedrouter --link localrabbit cphjs284/si2contentbasedrouter
-sudo docker run -d -it --name highbroker --link localrabbit cphjs284/si2broker json nasq highbroker
-sudo docker run -d -it --name lowbroker --link localrabbit cphjs284/si2broker xml dow lowbroker
-sudo docker run -d -it --name crapbroker --link localrabbit cphjs284/si2broker json dow crapbroker
 sudo docker run -d -it --name normalizer --link localrabbit cphjs284/si2normalizer
 sudo docker run -d -it --name aggregator --link localrabbit cphjs284/si2aggregator
 sudo docker run -d -it --name splitter --link localrabbit cphjs284/si2splitter
 ```
-If you want to see the output, run of each the above commands without the -d flag and in separate terminals.
+
+Next connect one or more brokers to the system, see below for broker argument explaination
+```
+sudo docker run -d -it --name highbroker --link localrabbit cphjs284/si2broker json nasq highbroker
+sudo docker run -d -it --name lowbroker --link localrabbit cphjs284/si2broker xml dow lowbroker
+sudo docker run -d -it --name crapbroker --link localrabbit cphjs284/si2broker json dow crapbroker
+```
 
 # Broker
 The Broker app takes 3 parameters [MESSAGE-DATA-FORMAT][STOCK-TYPE][BROKER-NAME] , where valid type of message-data-format are either xml or json - this indicates the data format the broker use for its reply. Stock-type is either nasq or dow, indicating wether the specific broker trades in tech-stock (nasq) or regular (dow). Broker-name is used to differentiate between the brokers.
@@ -38,6 +48,7 @@ The aggregator, whos job it is to accumulate the output from all the brokers all
 # Clean up
 Remove all containers by executing
 ```
+sudo docker rm -f logger
 sudo docker rm -f localrabbit
 sudo docker rm -f frontend
 sodu docker rm -f msgexpiration

@@ -13,33 +13,26 @@ namespace Normalizer
         static void Main(string[] args)
         {
             var HostName = "localrabbit";
+            string CompName = "NORMALIZER COMPONENT";
             var factory = new ConnectionFactory(){HostName=HostName};
             using (var connection = factory.CreateConnection())
             {
                 using (var channel = connection.CreateModel())
                 {
+                    channel.ExchangeDeclare("normalizer", ExchangeType.Direct);
                     channel.QueueDeclare("normalizer_queue", false, false, false, null);
                     channel.QueueBind("normalizer_queue", "normalizer", "");
-                    channel.ExchangeDeclare("aggregator", ExchangeType.Direct);
-
+                    
+                    channel.BasicPublish("logger_ex", "", body: Encoding.UTF8.GetBytes($"starting {CompName}"));
                     var consumer = new EventingBasicConsumer(channel);
                     consumer.Received += (model, ea) => {
                         var body = ea.Body;
                         ea.BasicProperties.Headers.TryGetValue("resptype", out object header);
                         var message = Encoding.UTF8.GetString(body);
                         var headerVal = Encoding.UTF8.GetString((byte[])header);
-
-                        System.Console.WriteLine("NORMALIZER RECEIVED:");
-                        System.Console.WriteLine("*********************************************");
-                        System.Console.WriteLine("HEADER (messagetype-format) : " + headerVal);
-                        System.Console.WriteLine("==============================================");
-                        System.Console.WriteLine("MESSAGE : " + message);
-                        System.Console.WriteLine("*********************************************");
-                        System.Console.WriteLine("SENDING:");
-                        System.Console.WriteLine("---------------------------------------------");
-                        System.Console.WriteLine(NormalizeAllTheThings(message, headerVal));
                         var normalizedMessageBody =Encoding.UTF8.GetBytes(NormalizeAllTheThings(message, headerVal));
 
+                        channel.BasicPublish("logger_ex", "", body: Encoding.UTF8.GetBytes($"{CompName} -  Received: HEADER (messagetype-format) : {headerVal} - MESSAGE : {message} Data normalized : {NormalizeAllTheThings(message, headerVal)}"));
                         channel.BasicPublish("aggregator", "", body: normalizedMessageBody);
                     };
 
