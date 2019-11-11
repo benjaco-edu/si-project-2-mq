@@ -16,7 +16,7 @@ The integration components are their own little app setup on to run inside a con
 
 Output from all containers are routed to a log container, via rabbitmq - to execute the logger
 ```
-sudo docker run -d -it --name logger --link localrabbit cphjs284/si2logger
+sudo docker run -it --name logger --link localrabbit cphjs284/si2logger
 ```
 
 Once this container spins up all messages send to the logger will be printed to the console.
