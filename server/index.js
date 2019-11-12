@@ -39,7 +39,7 @@ let nextId = 1;
 
     channel.consume('stock_offers', function (msg) {
         let offer = JSON.parse(msg.content.toString());
-        Array.from(wss.clients).filter(i => i.id == offer.id).forEach(ws => {
+        Array.from(wss.clients).filter(i => i.id == offer[0].id).forEach(ws => {
             ws.send(msg.content.toString());
         })
     }, {
@@ -66,21 +66,22 @@ if (typeof process.env.demoserver !== "undefined") {
 
             await new Promise(resolve => setTimeout(resolve, 2500));
 
-            channel.sendToQueue("stock_offers", Buffer.from(JSON.stringify({
-                id,
-                amount,
-                stock,
-                offers: [
-                    {
-                        from: "nordnet",
-                        cost: 23
-                    },
-                    {
-                        from: "danske bank",
-                        cost: 54
-                    }
-                ]
-            })));
+            channel.sendToQueue("stock_offers", Buffer.from(JSON.stringify([
+                                    {
+                                      "id": id,
+                                      "amount": "666",
+                                      "stock": "IBM",
+                                      "broker": "yosuke",
+                                      "totalPrice": 1.19
+                                    },{
+                                        "id": id,
+                                        "amount": "666",
+                                        "stock": "IBM",
+                                        "broker": "Jacom",
+                                        "totalPrice": 134
+                                      }
+                                    ]
+            )));
 
         }, {
             noAck: true
