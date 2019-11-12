@@ -45,9 +45,8 @@ sudo docker run -d -it --name highbroker --link localrabbit cphjs284/si2broker x
 sudo docker run -d -it --name lowbroker --link localrabbit cphjs284/si2broker xml dow lowbroker
 sudo docker run -d -it --name crapbroker --link localrabbit cphjs284/si2broker xml dow crapbroker
 sudo docker run -d -it --name sutterbroker --link localrabbit cphjs284/si2broker xml dow sutterbroker
-sudo docker run -d -it --name pybrokera --link localrabbit youe73/si2broker elitebroker
-sudo docker run -d -it --name pybrokerb --link localrabbit youe73/si2broker middlebroker
-sudo docker run -d -it --name pybrokerc --link localrabbit youe73/si2broker uselessbroker
+sudo docker run -d -it --name pybrokera --link localrabbit youe73/si2broker ClassA
+sudo docker run -d -it --name pybrokerb --link localrabbit youe73/si2broker ClassB
 ```
 
 # Broker
@@ -75,6 +74,5 @@ sudo docker rm -f crapbroker
 sudo docker rm -f sutterbroker
 sudo docker rm -f pybrokera
 sudo docker rm -f pybrokerb
-sudo docker rm -f pybrokerc
 ```
 
