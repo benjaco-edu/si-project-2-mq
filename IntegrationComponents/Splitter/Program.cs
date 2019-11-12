@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using Newtonsoft.Json;
@@ -49,7 +50,14 @@ namespace Splitter
                         }
 
                         sortedList.Sort();
-                        var msgbody = JsonConvert.SerializeObject(sortedList[0]);
+                        //take the 3 best offers or the entire list if less than 3 brokers are connected
+                        string msgbody="";
+                        if (sortedList.Count < 3){
+                            msgbody = JsonConvert.SerializeObject(sortedList);
+                        }else{
+                            msgbody = JsonConvert.SerializeObject(sortedList.Take(3));
+                        }
+
                         var Rbody = Encoding.UTF8.GetBytes(msgbody);
                         channel.BasicPublish("server_response","", body:Rbody);
                         channel.BasicPublish("logger_ex", "", body: Encoding.UTF8.GetBytes($"{CompName} - Sending : {msgbody}"));
