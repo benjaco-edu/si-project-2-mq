@@ -1,19 +1,27 @@
+# System-Integration project 2
 
-# Run Rabbit mq
+# Business-case
+A user wants to buy stocks, sending out requests to all potential brokers - the user wants to choose the cheapest option (the broker with the lowest fees)
+
+# Diagrams
+The folder diagram contains a workflow diagram using BMP notation (this can be viewed with the Camunda modeler). Also in this folder is a IE component diagram (the diagram used have been lifted from here [www.enterpriseintegrationpatterns.com](https://www.enterpriseintegrationpatterns.com/patterns/messaging/toc.html) )
+
+# Setting it up
+
+## Run Rabbit mq
 
 `sudo docker run -d --rm -p 5672:5672 -p 15672:15672 --name localrabbit rabbitmq:3-management`
 
 The RabbitMQ dashboard can now be viewed at `http://localhost:15672` user: guest, password: guest
 
-# Run the server
+## Run the server
 
 Run the server, open `http://localhost:3000` to see the app
 
 `sudo docker run -d -p 3000:3000 --rm --name frontend --link localrabbit:rabbitmq bslcphbussiness/si-mq-server`
 
 # Components
-The integration components are their own little app setup on to run inside a container
-
+The integration components are small apps setup on to run inside a container
 Output from all containers are routed to a log container, via rabbitmq - to execute the logger
 ```
 sudo docker run -it --name logger --link localrabbit cphjs284/si2logger
@@ -30,11 +38,16 @@ sudo docker run -d -it --name aggregator --link localrabbit cphjs284/si2aggregat
 sudo docker run -d -it --name splitter --link localrabbit cphjs284/si2splitter
 ```
 
-Next connect one or more brokers to the system, see below for broker argument explaination
+Next connect one or more brokers to the system, see below for broker argument explaination.
+No matter how many brokers are connected to the system, the splitter will always only return the best 3 offers. Incase less than 3 brokers are connected to the system, the total amount of broker offers are returned.
 ```
-sudo docker run -d -it --name highbroker --link localrabbit cphjs284/si2broker json nasq highbroker
+sudo docker run -d -it --name highbroker --link localrabbit cphjs284/si2broker xml dow highbroker
 sudo docker run -d -it --name lowbroker --link localrabbit cphjs284/si2broker xml dow lowbroker
-sudo docker run -d -it --name crapbroker --link localrabbit cphjs284/si2broker json dow crapbroker
+sudo docker run -d -it --name crapbroker --link localrabbit cphjs284/si2broker xml dow crapbroker
+sudo docker run -d -it --name sutterbroker --link localrabbit cphjs284/si2broker xml dow sutterbroker
+sudo docker run -d -it --name pybrokera --link localrabbit youe73/si2broker elitebroker
+sudo docker run -d -it --name pybrokerb --link localrabbit youe73/si2broker middlebroker
+sudo docker run -d -it --name pybrokerc --link localrabbit youe73/si2broker uselessbroker
 ```
 
 # Broker
@@ -59,5 +72,9 @@ sudo docker rm -f splitter
 sudo docker rm -f highbroker
 sudo docker rm -f lowbroker
 sudo docker rm -f crapbroker
+sudo docker rm -f sutterbroker
+sudo docker rm -f pybrokera
+sudo docker rm -f pybrokerb
+sudo docker rm -f pybrokerc
 ```
 
