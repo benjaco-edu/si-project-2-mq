@@ -16,11 +16,12 @@ The RabbitMQ dashboard can now be viewed at `http://localhost:15672` user: guest
 
 ## Run the server
 
+`sudo docker run -d -p 3000:3000 --rm --name frontend --link localrabbit:rabbitmq bslcphbussiness/si-mq-server`
+
 Run the server, open `http://localhost:3000` to see the app
 
 The server is a nodejs server which is serving a static file, when a request is made, it's creating a websocket connection with the server, creating an unique id and sending a message to the system. When the message comes back, it carries the identifier which is associated with a websocket connection, and the results is returned.
 
-`sudo docker run -d -p 3000:3000 --rm --name frontend --link localrabbit:rabbitmq bslcphbussiness/si-mq-server`
 
 # Components
 The integration components are small apps setup on to run inside a container
