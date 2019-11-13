@@ -6,8 +6,9 @@ import random
 import xml.etree.ElementTree as ET
 
 connection = pika.BlockingConnection(pika.ConnectionParameters(host='localrabbit'))
-#connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
 channel = connection.channel()
+
+log = 'PYTHON BROKER'
 
 # creating a random queue 
 result = channel.queue_declare(queue='', exclusive=True)
@@ -16,11 +17,14 @@ queue_name = result.method.queue
 
 print(' [*] Waiting for incoming stock request. To exit press CTRL+C')
 
+# logger added
+channel.basic_publish( exchange='logger_ex', routing_key='', body=log)
 
 # open the broker with keyword ClassA or ClassB
 severities = sys.argv[1:]
 if not severities:
-    sys.stderr.write("Usage: %s [ClassA] [ClassB]\n" % sys.argv[0])
+    #sys.stderr.write("Usage: %s [ClassA] [ClassB]\n" % sys.argv[0])
+    sys.stderr.write("Usage: %s [elitebroker] [middelbroker] [uselessbroker]\n" % sys.argv[0])
     sys.exit(1)
 
 # Binds to the unknown queue to receive data. This queue is filled from exchanger stock_type 
@@ -47,7 +51,8 @@ def main(id,amount, stock,ch,body):
     ch.basic_publish(exchange='normalizer', routing_key='', body=readymessage,
         properties=pika.BasicProperties( headers={'resptype':outputstocktype})) #delivery_mode=2,
     
-      
+    # print logger message
+    ch.basic_publish( exchange='logger_ex', routing_key='', body="DATA RECEIVED:"+log+readymessage)
         
     
 def calculate_stock(stock):
